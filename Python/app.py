@@ -12,7 +12,7 @@ from PIL import Image, ImageTk
 SERIAL_PORT = 'COM8'
 BAUD_RATE = 57600
 BG_COLOR = "#f4f8fd"  
-VGUARD_BLUE = "#005a87"
+ADI_BLUE = "#005a87"
 
 
 # --- SYSTEMVARIABLER ---
@@ -36,9 +36,8 @@ except Exception as e:
 # --- SKAPA HUVUDFÖNSTRET ---
 root = tk.Tk()
 root.title("VGuard Control System")
-root.geometry("480x720") # Justerad höjd för att rymma sektionerna snyggt
+root.geometry("480x720")
 root.configure(bg="white")
-
 
 # --- BILDHANTERING (Säker laddning) ---
 base_path = os.path.dirname(os.path.abspath(__file__))
@@ -56,15 +55,12 @@ def load_icon(filename, size, rotate=0):
         print(f"Kunde inte ladda {filename}: {e}")
         return None
 
-
 # Spara bilderna i root för att förhindra "garbage collection"
 root.img_play = load_icon("play.png", (50, 50), rotate=-90)
 root.img_power = load_icon("on.png", (45, 45))
 
 
 # --- FUNKTIONER ---
-
-
 def read_from_arduino():
     """Bakgrundstråd som tolkar Arduinons reglerdata."""
     global log_box, start_height
@@ -142,7 +138,7 @@ def open_monitor_window():
 
 
     tk.Label(monitor_win, text="LIVE MONITORING", font=("Helvetica", 14, "bold"),
-              bg=VGUARD_BLUE, fg="white", pady=10).pack(fill="x")
+              bg=ADI_BLUE, fg="white", pady=10).pack(fill="x")
 
 
     content = tk.Frame(monitor_win, bg=BG_COLOR, padx=20, pady=10)
@@ -240,8 +236,28 @@ main.place(relx=0.5, rely=0.5, anchor="center", width=440, height=660)
 
 header_frame = tk.Frame(main, bg=BG_COLOR)
 header_frame.pack(fill="x", pady=(0, 30))
-tk.Label(header_frame, text="✚ VGuard", font=("Helvetica", 22, "bold"), fg=VGUARD_BLUE, bg=BG_COLOR).pack(side="left")
+# Skapa en Text-widget istället för en Label
+logo_text = tk.Text(
+    header_frame, 
+    font=("Helvetica", 35, "bold"), 
+    bg=BG_COLOR, 
+    bd=0,                 # Tar bort ramen runt textrutan
+    highlightthickness=0, # Tar bort fokus-ramen
+    height=1,             # Sätter höjden till exakt en rad
+    width=4               # Sätter bredden så den precis passar "ADI"
+)
+logo_text.pack(side="left")
 
+# Skapa färg-taggar
+logo_text.tag_config("dark", foreground="#2c3e50")
+logo_text.tag_config("green", foreground="#27ae60")
+
+# Skriv ut bokstäverna med rätt färg direkt efter varandra
+logo_text.insert("insert", "AD", "dark")
+logo_text.insert("insert", "i", "green")
+
+# Gör textrutan "read-only" så att användaren inte kan råka radera loggan
+logo_text.config(state="disabled")
 
 on_group = tk.Frame(header_frame, bg=BG_COLOR)
 on_group.pack(side="right")
@@ -272,7 +288,7 @@ btn_f = tk.Frame(display_frame, bg=BG_COLOR)
 btn_f.pack(side="left", padx=25)
 for txt, d in [("−", -10), ("+", 10)]:
     tk.Button(btn_f, text=txt, command=lambda delta=d: adjust_goal(delta),
-              font=("Arial", 18, "bold"), width=2, bg="white", fg=VGUARD_BLUE, bd=2, relief="solid").pack(side="left", padx=1)
+              font=("Arial", 18, "bold"), width=2, bg="white", fg=ADI_BLUE, bd=2, relief="solid").pack(side="left", padx=1)
 
 
 # --- CURRENT POSITION SECTION ---
@@ -290,7 +306,7 @@ btn_pos_f = tk.Frame(pos_frame, bg=BG_COLOR)
 btn_pos_f.pack(side="left", padx=25)
 for txt, d in [("−", -1), ("+", 1)]: # Justerat till steg om 1 mmHg
     tk.Button(btn_pos_f, text=txt, command=lambda delta=d: adjust_pos(delta),
-              font=("Arial", 18, "bold"), width=2, bg="white", fg=VGUARD_BLUE, bd=2, relief="solid").pack(side="left", padx=1)
+              font=("Arial", 18, "bold"), width=2, bg="white", fg=ADI_BLUE, bd=2, relief="solid").pack(side="left", padx=1)
 
 
 
